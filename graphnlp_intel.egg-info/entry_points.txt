@@ -1,2 +1,0 @@
-[console_scripts]
-graphnlp = graphnlp.cli:main

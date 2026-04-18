@@ -1,0 +1,17 @@
+# Build artifacts
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.whl
+*.tar.gz
+
+# Environment
+.env
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store

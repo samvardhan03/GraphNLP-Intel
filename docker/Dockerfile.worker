@@ -1,0 +1,17 @@
+FROM python:3.11-slim AS base
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml .
+RUN pip install --no-cache-dir -e ".[serve]"
+
+RUN python -m spacy download en_core_web_sm
+
+COPY graphnlp ./graphnlp
+COPY config ./config
+
+CMD ["celery", "-A", "graphnlp.queue.worker", "worker", "--loglevel=info", "--concurrency=2"]

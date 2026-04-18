@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>graphnlp-intel | Knowledge Graph API</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    :root {
+      --bg: #07070f;
+      --bg2: #0c0c18;
+      --bg3: #11111f;
+      --border: #1c1c30;
+      --border2: #26263c;
+      --accent: #00c896;
+      --accent2: #4f6ef7;
+      --text: #dde0ec;
+      --text2: #7b7e96;
+      --text3: #4a4d63;
+      
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-serif: 'Cormorant Garamond', serif;
+      --font-sans: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Typography */
+    .mono { font-family: var(--font-mono); }
+    .serif { font-family: var(--font-serif); }
+    .text-accent { color: var(--accent); }
+    .text-muted { color: var(--text2); }
+    
+    a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--accent); }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--accent);
+      color: #000;
+      font-weight: 700;
+    }
+    .btn-primary:hover {
+      background-color: #00e0a8;
+      transform: translateY(-1px);
+    }
+    
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--text2);
+    }
+
+    /* Navbar */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 80px;
+      background: rgba(7, 7, 15, 0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 180px 0 100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      color: var(--text2);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+    .hero h1 {
+      font-size: 4rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+    }
+    .hero h1 i {
+      color: var(--accent);
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text2);
+      margin-bottom: 2.5rem;
+      max-width: 480px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .install-box {
+      font-family: var(--font-mono);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+    }
+    .install-box::before {
+      content: '$';
+      color: var(--text3);
+      margin-right: 1rem;
+    }
+    .stats-row {
+      display: flex;
+      gap: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text3);
+      text-transform: uppercase;
+    }
+
+    /* Hero Graph */
+    .hero-graph {
+      position: relative;
+      width: 100%;
+      height: 400px;
+    }
+    .hero-graph svg {
+      width: 100%;
+      height: 100%;
+    }
+    .edge {
+      stroke: var(--border2);
+      stroke-width: 1.5;
+      fill: none;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: drawEdge 2s forwards ease-out;
+    }
+    @keyframes drawEdge {
+      to { stroke-dashoffset: 0; }
+    }
+    .node-group {
+      opacity: 0;
+      animation: fadeInNode 0.5s forwards ease-out;
+    }
+    @keyframes fadeInNode {
+      to { opacity: 1; }
+    }
+    .node-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      fill: var(--text2);
+      text-anchor: middle;
+    }
+
+    /* Sections Shared */
+    section {
+      padding: 100px 0;
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      margin-bottom: 4rem;
+      font-weight: 400;
+      text-align: center;
+    }
+
+    /* How it works */
+    .bg-surface { background-color: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+      position: relative;
+    }
+    .pipeline::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .step-icon {
+      width: 64px; height: 64px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      color: var(--accent);
+    }
+    .step h3 {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    .step p {
+      font-size: 0.875rem;
+      color: var(--text2);
+      margin-bottom: 1rem;
+    }
+    .step-tags {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text3);
+    }
+
+    /* Demo */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .terminal {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .term-header {
+      height: 32px;
+      background: #151522;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      gap: 6px;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; background: #33364f; }
+    .term-body {
+      padding: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text);
+      min-height: 250px;
+    }
+    .term-line {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+      margin-bottom: 0.5rem;
+    }
+    .term-line.visible { opacity: 1; transform: translateY(0); }
+    .term-comment { color: var(--text3); }
+    .term-kw { color: var(--accent2); }
+    .term-str { color: var(--accent); }
+
+    .demo-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .demo-stat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .demo-stat-val { font-family: var(--font-mono); color: var(--text); }
+    .demo-stat-lbl { font-size: 0.75rem; color: var(--text3); text-transform: uppercase; }
+
+    /* Output Graph */
+    .output-svg { width: 100%; height: 300px; }
+    .pulse-dot-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+    }
+    .pulse {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulseAnim 2s infinite;
+    }
+    @keyframes pulseAnim {
+      0% { box-shadow: 0 0 0 0 rgba(0, 200, 150, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 200, 150, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 200, 150, 0); }
+    }
+
+    /* Use Cases */
+    .use-cases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all 0.3s;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+    .card-icon { font-size: 2rem; margin-bottom: 1.5rem; }
+    .card h3 { font-family: var(--font-mono); margin-bottom: 1rem; }
+    .card p { color: var(--text2); font-size: 0.875rem; }
+
+    /* Pricing */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    .price-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .price-card.featured {
+      border-top: 3px solid var(--accent);
+      background: var(--bg3);
+    }
+    .tier-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text2);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .price-card.featured .tier-lbl { color: var(--accent); }
+    .price-val {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .price-sub { font-size: 0.875rem; color: var(--text3); margin-bottom: 1.5rem; min-height: 42px; }
+    .price-div { height: 1px; background: var(--border); margin-bottom: 1.5rem; }
+    .feat-list { list-style: none; margin-bottom: 2rem; flex-grow: 1; }
+    .feat-list li {
+      font-size: 0.875rem;
+      color: var(--text2);
+      margin-bottom: 0.75rem;
+      display: flex;
+    }
+    .feat-list li::before {
+      content: '→';
+      color: var(--text3);
+      margin-right: 0.5rem;
+      font-family: var(--font-mono);
+    }
+    .price-card .btn { width: 100%; justify-content: center; }
+
+    /* Contact */
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border 0.2s;
+    }
+    .input:focus { border-color: var(--accent); }
+    textarea.input { resize: vertical; min-height: 120px; margin-bottom: 1.5rem; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0;
+      margin-top: 4rem;
+    }
+    .foot-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text3);
+    }
+    .foot-links { display: flex; gap: 1.5rem; }
+    .foot-links a:hover { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 120px; }
+      .hero-graph { display: none; }
+      .pipeline { grid-template-columns: 1fr; gap: 2rem; }
+      .pipeline::before { display: none; }
+      .demo-grid, .use-cases-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats-row { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav-inner">
+      <div class="logo">graphnlp-intel</div>
+      <div class="nav-links">
+        <a class="mono" href="#how-it-works">How it works</a>
+        <a class="mono" href="#use-cases">Use cases</a>
+        <a class="mono" href="#pricing">Pricing</a>
+        <a class="mono" href="https://github.com/samvardhan03/GraphNLP-Intel">GitHub</a>
+        <a class="mono" href="https://pypi.org/project/graphnlp-intel/">PyPI</a>
+        <a href="#contact" class="btn btn-primary">Get a quote &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero container">
+    <div class="hero-content">
+      <span class="eyebrow">Hybrid Graph-NLP Infrastructure</span>
+      <h1 class="serif">Map unstructured data to <i>actionable</i> intelligence.</h1>
+      <p>The open-source pipeline that runs NER, relationship extraction, and GNN sentiment propagation over raw documents.</p>
+      
+      <div class="hero-actions">
+        <div class="install-box">pip install graphnlp-intel</div>
+        <a href="#how-it-works" class="btn btn-ghost">See how it works</a>
+      </div>
+      
+      <div class="stats-row">
+        <span>5 domains</span>
+        <span>3 lines to run</span>
+        <span>&infin; formats</span>
+      </div>
+    </div>
+    
+    <div class="hero-graph" id="heroSvgContainer">
+      <!-- Injected via JS -->
+    </div>
+  </section>
+
+  <section id="how-it-works" class="bg-surface">
+    <div class="container">
+      <h2 class="section-title">The Intelligence Pipeline</h2>
+      <div class="pipeline">
+        <div class="step scroll-anim" style="transition-delay: 0.1s">
+          <div class="step-icon">01</div>
+          <h3>Ingestion</h3>
+          <p>Parses emails, CSVs, and PDFs into coherent document streams.</p>
+          <span class="step-tags">TextChunker · EmailParser</span>
+        </div>
+        <div class="step scroll-anim" style="transition-delay: 0.2s">
+          <div class="step-icon">02</div>
+          <h3>Extraction</h3>
+          <p>Finds entities and SVO relationships via zero-shot models.</p>
+          <span class="step-tags">spaCy · HuggingFace</span>
+        </div>
+        <div class="step scroll-anim" style="transition-delay: 0.3s">
+          <div class="step-icon">03</div>
+          <h3>Graph build</h3>
+          <p>Merges mentions via cosine similarity over SBERT embeddings.</p>
+          <span class="step-tags">NetworkX · SONAR</span>
+        </div>
+        <div class="step scroll-anim" style="transition-delay: 0.4s">
+          <div class="step-icon">04</div>
+          <h3>GNN</h3>
+          <p>Propagates localized sentiment across the network topology.</p>
+          <span class="step-tags">PyTorch Geometric (GAT)</span>
+        </div>
+        <div class="step scroll-anim" style="transition-delay: 0.5s">
+          <div class="step-icon">05</div>
+          <h3>Output</h3>
+          <p>Persists to Neo4j, triggers webhooks, serves D3 data.</p>
+          <span class="step-tags">FastAPI · Neo4j · Celery</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="demo-grid">
+      <div class="demo-code">
+        <div class="terminal">
+          <div class="term-header">
+            <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+          </div>
+          <div class="term-body" id="codeTerm">
+            <div class="term-line" id="tl-1"><span class="term-kw">from</span> graphnlp <span class="term-kw">import</span> Pipeline</div>
+            <div class="term-line" id="tl-2"><br/>pipe = Pipeline(domain=<span class="term-str">'finance'</span>)</div>
+            <div class="term-line" id="tl-3">graph = pipe.run(<span class="term-str">'inbox.eml'</span>)</div>
+            <div class="term-line" id="tl-4"><br/>graph.visualize(<span class="term-str">'output.html'</span>)</div>
+            <div class="term-line" id="tl-5">graph.summary()</div>
+            <div class="term-line" id="tl-6"><br/><span class="term-comment"># &rarr; {clusters: [...], merchants: [...], sentiment: {...}}</span></div>
+          </div>
+        </div>
+        
+        <div class="demo-stats">
+          <div class="demo-stat-col">
+            <span class="demo-stat-val">2.1s</span>
+            <span class="demo-stat-lbl">avg pipeline time</span>
+          </div>
+          <div class="demo-stat-col">
+            <span class="demo-stat-val">98%</span>
+            <span class="demo-stat-lbl">ner precision</span>
+          </div>
+          <div class="demo-stat-col">
+            <span class="demo-stat-val">50k</span>
+            <span class="demo-stat-lbl">docs/day free</span>
+          </div>
+          <div class="demo-stat-col">
+            <span class="demo-stat-val">12+</span>
+            <span class="demo-stat-lbl">entity types</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="demo-output">
+        <div class="output-svg" id="outputSvgContainer"></div>
+        <div class="pulse-dot-container">
+          <div class="pulse"></div>
+          <span>knowledge graph — output.html</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="use-cases" class="bg-surface">
+    <div class="container">
+      <h2 class="section-title">Contextual Use Cases</h2>
+      <div class="use-cases-grid">
+        <div class="card scroll-anim" style="transition-delay: 0.1s">
+          <div class="card-icon">💳</div>
+          <h3>Finance & Banking</h3>
+          <p>Parse raw bank emails to build a merchant relationship graph. Detect spend clusters, hidden subscriptions, and macro expense trends automatically.</p>
+        </div>
+        <div class="card scroll-anim" style="transition-delay: 0.22s">
+          <div class="card-icon">💬</div>
+          <h3>Customer Intelligence</h3>
+          <p>Ingest reviews and support tickets. Run GNN sentiment propagation to map how negative feedback on one feature impacts the perception of others.</p>
+        </div>
+        <div class="card scroll-anim" style="transition-delay: 0.34s">
+          <div class="card-icon">🖥️</div>
+          <h3>IT Operations</h3>
+          <p>Consume unstructured incident logs to assemble service dependency graphs. Detect cascade failures and route P0 alerts dynamically.</p>
+        </div>
+        <div class="card scroll-anim" style="transition-delay: 0.46s">
+          <div class="card-icon">🔬</div>
+          <h3>Research & Publishing</h3>
+          <p>Process scientific papers or earnings calls with SONAR multilingual embeddings to map entity co-citation clusters across languages.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="container">
+    <h2 class="section-title">Transparent Architecture</h2>
+    <div class="pricing-grid">
+      
+      <div class="price-card">
+        <span class="tier-lbl">Open Source</span>
+        <div class="price-val">Free</div>
+        <div class="price-sub">Run it yourself locally</div>
+        <div class="price-div"></div>
+        <ul class="feat-list">
+          <li>Apache 2.0 license</li>
+          <li>Self-hosted containers</li>
+          <li>All domain adapters</li>
+          <li>Typer CLI included</li>
+        </ul>
+        <a href="https://github.com/samvardhan03/GraphNLP-Intel" class="btn btn-ghost mono">Clone Repo</a>
+      </div>
+      
+      <div class="price-card">
+        <span class="tier-lbl">Custom NER</span>
+        <div class="price-val">$800<span style="font-size:1rem;color:var(--text2)">-2k</span></div>
+        <div class="price-sub">One-time model engineering</div>
+        <div class="price-div"></div>
+        <ul class="feat-list">
+          <li>Fine-tune NER pipeline</li>
+          <li>Custom entity schemas</li>
+          <li>HuggingFace delivery</li>
+          <li>Full evaluation report</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost mono">Request build</a>
+      </div>
+      
+      <div class="price-card featured">
+        <span class="tier-lbl">Hosted API &#9733;</span>
+        <div class="price-val">$2,500</div>
+        <div class="price-sub">+ $400/mo management fee</div>
+        <div class="price-div"></div>
+        <ul class="feat-list">
+          <li>AWS / GCP / Azure deploy</li>
+          <li>Docker + Terraform init</li>
+          <li>Managed Redis + Neo4j</li>
+          <li>Python & JS SDKs</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary mono">Start deployment</a>
+      </div>
+      
+      <div class="price-card">
+        <span class="tier-lbl">Enterprise</span>
+        <div class="price-val">$8k+</div>
+        <div class="price-sub">Bespoke integrations</div>
+        <div class="price-div"></div>
+        <ul class="feat-list">
+          <li>Kafka streaming engine</li>
+          <li>Interactive React dashboard</li>
+          <li>Custom alerting SLA</li>
+          <li>White-label endpoints</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost mono">Contact sales</a>
+      </div>
+      
+    </div>
+  </section>
+
+  <section id="contact" class="container">
+    <h2 class="section-title">Tell us about your data</h2>
+    <form class="contact-form" id="quoteForm">
+      <div class="form-row">
+        <input type="text" class="input" placeholder="Name" required />
+        <input type="email" class="input" placeholder="Email" required />
+      </div>
+      <div class="form-row">
+        <select class="input" required style="appearance: none;">
+          <option value="" disabled selected>Select Industry</option>
+          <option>Finance</option>
+          <option>IT Ops</option>
+          <option>E-commerce</option>
+          <option>Research</option>
+          <option>Other</option>
+        </select>
+        <select class="input" required style="appearance: none;">
+          <option value="" disabled selected>Target Tier</option>
+          <option>Custom NER Model</option>
+          <option>Hosted API infrastructure</option>
+          <option>Enterprise deployment</option>
+        </select>
+      </div>
+      <textarea class="input" placeholder="What kind of unstructured data are you trying to map?" required></textarea>
+      <button type="submit" class="btn btn-primary mono" id="submitBtn" style="width:100%; justify-content:center; padding: 1rem;">Submit Request &rarr;</button>
+    </form>
+  </section>
+
+  <footer>
+    <div class="container foot-inner">
+      <div>graphnlp-intel v0.1.0 &middot; Apache 2.0 License</div>
+      <div class="foot-links">
+        <a href="https://github.com/samvardhan03/GraphNLP-Intel">GitHub</a>
+        <a href="https://pypi.org/project/graphnlp-intel/">PyPI</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Scroll Animations ---
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.scroll-anim').forEach(el => observer.observe(el));
+
+    // --- Terminal Typing Animation ---
+    const termObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          const lines = [1,2,3,4,5,6];
+          lines.forEach((id, idx) => {
+            setTimeout(() => {
+              document.getElementById(`tl-${id}`).classList.add('visible');
+            }, idx * 300);
+          });
+          termObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    termObserver.observe(document.getElementById('codeTerm'));
+
+
+    // --- Form Handling ---
+    document.getElementById('quoteForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = 'Received. We will be in touch.';
+      btn.style.backgroundColor = 'var(--bg3)';
+      btn.style.color = 'var(--accent)';
+      btn.style.border = '1px solid var(--border)';
+    });
+
+
+    // --- SVG Graph Generation (Hero) ---
+    function initHeroGraph() {
+      const w = document.getElementById('heroSvgContainer').clientWidth;
+      const h = 400;
+      
+      const nodes = [
+        {id:1, label:"Acme Corp", type:"ORG", color:"#00c896", x: w*0.2, y: h*0.3},
+        {id:2, label:"Q3 Earnings", type:"METRIC", color:"#f59e0b", x: w*0.5, y: h*0.2},
+        {id:3, label:"Jane Doe", type:"PERSON", color:"#4f6ef7", x: w*0.8, y: h*0.35},
+        {id:4, label:"$1.2B", type:"AMOUNT", color:"#f59e0b", x: w*0.3, y: h*0.65},
+        {id:5, label:"Cloud OS", type:"PRODUCT", color:"#a855f7", x: w*0.6, y: h*0.7},
+        {id:6, label:"ACM", type:"TICKER", color:"#4f6ef7", x: w*0.1, y: h*0.5},
+        {id:7, label:"Oct 2025", type:"DATE", color:"#7b7e96", x: w*0.85, y: h*0.7},
+        {id:8, label:"+0.85", type:"SCORE", color:"#00c896", x: w*0.4, y: h*0.85}
+      ];
+      
+      const edges = [
+        [1,2], [1,4], [1,5], [1,6], [2,7], [3,5], [4,2], [5,8], [3,2]
+      ];
+
+      let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+      
+      // Draw edges
+      edges.forEach((edge, i) => {
+        const n1 = nodes.find(n => n.id === edge[0]);
+        const n2 = nodes.find(n => n.id === edge[1]);
+        const delay = i * 0.15;
+        svg += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" class="edge" style="animation-delay: ${delay}s" />`;
+      });
+
+      // Draw nodes
+      nodes.forEach((n, i) => {
+        const delay = 0.5 + (i * 0.12);
+        svg += `
+          <g class="node-group" style="animation-delay: ${delay}s; transform: translate(${n.x}px, ${n.y}px)">
+            <circle r="6" fill="${n.color}" />
+            <text y="20" class="node-label">${n.label}</text>
+          </g>
+        `;
+      });
+      svg += `</svg>`;
+      
+      document.getElementById('heroSvgContainer').innerHTML = svg;
+    }
+
+    // --- SVG Graph Generation (Output Demo) ---
+    function initOutputGraph() {
+      const container = document.getElementById('outputSvgContainer');
+      const w = container.clientWidth || 300;
+      const h = 300;
+      
+      const nodes = [
+        {id:1, label:"Goldman Sachs", color:"#00c896", x: w*0.3, y: h*0.2},
+        {id:2, label:"Jan 2025", color:"#7b7e96", x: w*0.7, y: h*0.3},
+        {id:3, label:"David Solomon", color:"#4f6ef7", x: w*0.2, y: h*0.5},
+        {id:4, label:"$GS", color:"#4f6ef7", x: w*0.5, y: h*0.6},
+        {id:5, label:"Revenue", color:"#f59e0b", x: w*0.8, y: h*0.7},
+        {id:6, label:"+0.68", color:"#00c896", x: w*0.4, y: h*0.8}
+      ];
+      
+      const edges = [[1,2],[1,3],[1,4],[4,5],[5,6],[1,5]];
+
+      let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+      edges.forEach((edge) => {
+        const n1 = nodes.find(n => n.id === edge[0]);
+        const n2 = nodes.find(n => n.id === edge[1]);
+        svg += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="#26263c" stroke-width="1.5" />`;
+      });
+      nodes.forEach((n) => {
+        svg += `
+          <g transform="translate(${n.x}, ${n.y})">
+            <circle r="5" fill="${n.color}" />
+            <text y="16" font-family="JetBrains Mono" font-size="10" fill="#7b7e96" text-anchor="middle">${n.label}</text>
+          </g>
+        `;
+      });
+      svg += `</svg>`;
+      container.innerHTML = svg;
+    }
+
+    window.addEventListener('load', () => {
+      initHeroGraph();
+      initOutputGraph();
+    });
+    window.addEventListener('resize', () => {
+      initHeroGraph();
+      // output graph size is mostly fixed, no need to redraw constantly
+    });
+  </script>
+</body>
+</html>

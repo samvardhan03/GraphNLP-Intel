@@ -1,0 +1,13 @@
+neo4j:
+  uri: "bolt://localhost:7687"
+  user: neo4j
+  password: password
+redis:
+  url: "redis://localhost:6379"
+api:
+  rate_limit: 100         # requests / minute per tenant
+  max_doc_size_mb: 10
+nlp:
+  ner_model: "en_core_web_trf"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  gnn_layers: 2

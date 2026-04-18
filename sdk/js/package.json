@@ -1,0 +1,9 @@
+{
+  "name": "graphnlp-client",
+  "version": "0.1.0",
+  "description": "JavaScript/TypeScript client for GraphNLP Intel API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": { "build": "tsc" },
+  "devDependencies": { "typescript": "^5.4" }
+}

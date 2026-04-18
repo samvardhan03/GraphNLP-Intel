@@ -1,0 +1,17 @@
+[
+  {
+    "raw": "From: billing@amazon.com\nTo: john@company.com\nSubject: Your Amazon Order Confirmation #112-3456789\nDate: Mon, 15 Jan 2024 10:30:00 -0500\nMessage-ID: <abc123@amazon.com>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\n\nHello John,\n\nThank you for your order! Your payment of $234.56 has been processed.\n\nOrder Details:\n- Ergonomic Keyboard: $89.99\n- Monitor Stand: $144.57\n\nShipping to: 123 Main St, New York, NY 10001\nExpected delivery: January 18, 2024\n\nThank you for shopping with Amazon.\n"
+  },
+  {
+    "raw": "From: noreply@chase.com\nTo: sarah@company.com\nSubject: JPMorgan Chase - Wire Transfer Received\nDate: Tue, 16 Jan 2024 14:22:00 -0500\nMessage-ID: <def456@chase.com>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\n\nDear Sarah,\n\nA wire transfer of $15,000.00 has been credited to your account.\n\nSender: Goldman Sachs Group Inc\nReference: Q4-2024-ADV-FEE\nDate: January 16, 2024\n\nYour current balance: $52,340.89\n\nThank you for banking with JPMorgan Chase.\n"
+  },
+  {
+    "raw": "From: invoices@deloitte.com\nTo: accounting@company.com\nSubject: Invoice #DLT-2024-0892 - Annual Audit Services\nDate: Fri, 19 Jan 2024 09:15:00 -0500\nMessage-ID: <ghi789@deloitte.com>\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=\"boundary123\"\n\n--boundary123\nContent-Type: text/plain; charset=utf-8\n\nDear Accounts Payable,\n\nPlease find attached invoice #DLT-2024-0892 for annual audit services.\n\nAmount Due: $25,000.00\nDue Date: February 19, 2024\nPayment to: Deloitte & Touche LLP\n\nServices rendered:\n- Financial statement audit (FY2023)\n- SOX compliance review\n- Internal controls assessment\n\nPlease remit payment via bank transfer.\n\n--boundary123\nContent-Type: text/html; charset=utf-8\n\n<html><body><h2>Invoice #DLT-2024-0892</h2><p>Amount: <strong>$25,000.00</strong></p></body></html>\n\n--boundary123--\n"
+  },
+  {
+    "raw": "From: expensify@company.com\nTo: manager@company.com\nSubject: Expense Report: Sarah Johnson - London Trip\nDate: Wed, 24 Jan 2024 16:45:00 -0500\nMessage-ID: <jkl012@company.com>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\n\nExpense Report Summary\n\nEmployee: Sarah Johnson\nTrip: Client Meeting - London, UK\nDates: Jan 20-23, 2024\n\nExpenses:\n- Delta Airlines roundtrip flight: $1,245.80\n- Hilton London Hotel (3 nights): $897.00\n- Uber rides: $156.40\n- Client dinner at The Ivy: $423.50\n\nTotal: $2,722.70\n\nApproval requested from: Michael Chen, VP Finance\n"
+  },
+  {
+    "raw": "From: alerts@stripe.com\nTo: finance@company.com\nSubject: Stripe Monthly Fee Summary - January 2024\nDate: Thu, 01 Feb 2024 08:00:00 -0500\nMessage-ID: <mno345@stripe.com>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\n\nHi Finance Team,\n\nHere is your Stripe processing summary for January 2024:\n\nTotal transactions processed: 1,247\nTotal volume: $89,432.10\nProcessing fees: $456.78\nNet deposits: $88,975.32\n\nTop merchants by volume:\n1. Enterprise Client A: $34,500.00\n2. SMB Client B: $22,100.00\n3. Startup Client C: $15,800.00\n\nNext payout date: February 3, 2024\n\nThank you for using Stripe.\n"
+  }
+]
